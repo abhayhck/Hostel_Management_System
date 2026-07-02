@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hostel Management</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="app-shell">
+        <header class="topbar">
+            <div>
+                <h1>Hostel Management</h1>
+                <p class="subtitle">Simple frontend for your FastAPI backend</p>
+            </div>
+            <div class="session-box">
+                <div id="sessionStatus">Not logged in</div>
+                <div class="topbar-actions">
+                    <button id="loadMeBtn" type="button">Load My User</button>
+                    <button id="logoutBtn" type="button" class="secondary">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="grid">
+            <section class="card">
+                <h2>Login</h2>
+                <form id="loginForm" class="form-grid">
+                    <label>
+                        Mobile / Username
+                        <input type="text" name="username" required>
+                    </label>
+                    <label>
+                        Password
+                        <input type="password" name="password" required>
+                    </label>
+                    <button type="submit">Login</button>
+                </form>
+                <pre id="meOutput" class="output"></pre>
+            </section>
+
+            <section class="card">
+                <h2>Students</h2>
+                <form id="studentForm" class="form-grid">
+                    <input type="number" name="student_id" placeholder="Student ID for update only" value="0" required>
+                    <input type="text" name="name" placeholder="Name" required>
+                    <input type="email" name="email" placeholder="Email" required>
+                    <input type="password" name="password" placeholder="Password" required>
+                    <input type="text" name="phone" placeholder="Phone / username" required>
+                    <input type="text" name="course" placeholder="Course" required>
+                    <input type="number" name="year" placeholder="Year" required>
+                    <input type="text" name="gender" placeholder="Gender" required>
+                    <input type="text" name="address" placeholder="Address" required>
+                    <input type="number" name="emergency_contact" placeholder="Emergency contact" required>
+                    <div class="action-row">
+                        <button type="button" data-action="create-student">Create</button>
+                        <button type="button" data-action="update-student" class="secondary">Update</button>
+                        <button type="button" data-action="delete-student" class="danger">Delete</button>
+                        <button type="button" data-action="list-students" class="secondary">List</button>
+                    </div>
+                </form>
+                <pre id="studentsOutput" class="output"></pre>
+            </section>
+
+            <section class="card">
+                <h2>Admins</h2>
+                <form id="adminForm" class="form-grid">
+                    <input type="number" name="admin_id" placeholder="Admin ID for update" value="0" required>
+                    <input type="text" name="name" placeholder="Name" required>
+                    <input type="email" name="email" placeholder="Email" required>
+                    <input type="text" name="phone" placeholder="Phone / username" required>
+                    <input type="password" name="password" placeholder="Password" required>
+                    <input type="text" name="designation" placeholder="Designation" required>
+                    <div class="action-row">
+                        <button type="button" data-action="create-admin">Create</button>
+                        <button type="button" data-action="update-admin" class="secondary">Update</button>
+                        <button type="button" data-action="delete-admin" class="danger">Delete</button>
+                        <button type="button" data-action="list-admins" class="secondary">List</button>
+                    </div>
+                </form>
+                <pre id="adminsOutput" class="output"></pre>
+            </section>
+
+            <section class="card">
+                <h2>Rooms</h2>
+                <form id="roomForm" class="form-grid">
+                    <input type="number" name="room_id" placeholder="Room ID for update/delete" value="0">
+                    <input type="text" name="room_no" placeholder="Room No" required>
+                    <input type="text" name="room_type" placeholder="Room Type" required>
+                    <input type="number" name="capacity" placeholder="Capacity" required>
+                    <input type="number" name="occupied" placeholder="Occupied" value="0" required>
+                    <div class="action-row">
+                        <button type="button" data-action="create-room">Create</button>
+                        <button type="button" data-action="update-room" class="secondary">Update</button>
+                        <button type="button" data-action="delete-room" class="danger">Delete</button>
+                        <button type="button" data-action="list-rooms" class="secondary">List</button>
+                    </div>
+                </form>
+                <pre id="roomsOutput" class="output"></pre>
+            </section>
+
+            <section class="card">
+                <h2>Room Allocations</h2>
+                <form id="allocationForm" class="form-grid">
+                    <input type="number" name="allocation_id" placeholder="Allocation ID for release" value="0">
+                    <input type="number" name="student_id" placeholder="Student ID" required>
+                    <input type="number" name="room_id" placeholder="Room ID" required>
+                    <input type="text" name="release_date" placeholder="Release date or note">
+                    <div class="action-row">
+                        <button type="button" data-action="create-allocation">Allocate</button>
+                        <button type="button" data-action="release-allocation" class="secondary">Release</button>
+                        <button type="button" data-action="list-allocations" class="secondary">List</button>
+                    </div>
+                </form>
+                <pre id="allocationsOutput" class="output"></pre>
+            </section>
+
+            <section class="card">
+                <h2>Complaints</h2>
+                <form id="complaintForm" class="form-grid">
+                    <input type="number" name="complaint_id" placeholder="Complaint ID for update/delete" value="0">
+                    <input type="number" name="student_id" placeholder="Student ID" required>
+                    <input type="text" name="complaint_desc" placeholder="Complaint description" required>
+                    <input type="text" name="status" placeholder="Status" value="pending" required>
+                    <div class="action-row">
+                        <button type="button" data-action="create-complaint">Create</button>
+                        <button type="button" data-action="update-complaint" class="secondary">Update</button>
+                        <button type="button" data-action="delete-complaint" class="danger">Delete</button>
+                        <button type="button" data-action="list-complaints" class="secondary">List</button>
+                    </div>
+                </form>
+                <pre id="complaintsOutput" class="output"></pre>
+            </section>
+
+            <section class="card">
+                <h2>Fees</h2>
+                <form id="feeForm" class="form-grid">
+                    <input type="number" name="fee_id" placeholder="Fee ID for update/delete" value="0">
+                    <input type="number" name="student_id" placeholder="Student ID" required>
+                    <input type="number" step="0.01" name="amount" placeholder="Amount" required>
+                    <input type="text" name="due_date" placeholder="Due date" required>
+                    <input type="text" name="status" placeholder="Status" value="pending" required>
+                    <div class="action-row">
+                        <button type="button" data-action="create-fee">Create</button>
+                        <button type="button" data-action="update-fee" class="secondary">Update</button>
+                        <button type="button" data-action="delete-fee" class="danger">Delete</button>
+                        <button type="button" data-action="list-fees" class="secondary">List</button>
+                    </div>
+                </form>
+                <pre id="feesOutput" class="output"></pre>
+            </section>
+
+            <section class="card">
+                <h2>Documents</h2>
+                <form id="documentForm" class="form-grid">
+                    <input type="number" name="document_id" placeholder="Document ID for update/delete" value="0">
+                    <input type="number" name="student_id" placeholder="Student ID" required>
+                    <input type="text" name="document_name" placeholder="Document name" required>
+                    <input type="text" name="upload_at" placeholder="Upload date/time" required>
+                    <input type="text" name="file_path" placeholder="File path" required>
+                    <div class="action-row">
+                        <button type="button" data-action="create-document">Create</button>
+                        <button type="button" data-action="update-document" class="secondary">Update</button>
+                        <button type="button" data-action="delete-document" class="danger">Delete</button>
+                        <button type="button" data-action="list-documents" class="secondary">List</button>
+                    </div>
+                </form>
+                <pre id="documentsOutput" class="output"></pre>
+            </section>
+        </main>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
