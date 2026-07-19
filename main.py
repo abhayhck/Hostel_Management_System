@@ -25,3 +25,13 @@ app.include_router(document.router)
 def serve_frontend():
     return FileResponse("static/index.html")
 
+
+@app.get("/admin")
+def serve_admin():
+    return FileResponse("static/admin.html")
+
+
+@app.get("/student")
+def serve_student():
+    return FileResponse("static/student.html")
+

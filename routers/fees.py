@@ -29,6 +29,9 @@ def create_fee(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user),
 ):
+    if current_user.role != 'admin':
+        raise HTTPException(status_code=403, detail = "Only administrator can update fees record")
+    
     db_student = (
         db.query(database_models.students)
         .filter(database_models.students.student_id == new_fee.student_id)
@@ -56,6 +59,9 @@ def update_fee(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user),
 ):
+    if current_user.role != 'admin':
+        raise HTTPException(status_code=403, detail = "Only administrator can update fees record")
+    
     db_fee = db.query(database_models.fees).filter(database_models.fees.fee_id == id).first()
     if not db_fee:
         raise HTTPException(status_code=404, detail="Fee record not found")
@@ -74,6 +80,9 @@ def delete_fee(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user),
 ):
+    if current_user.role != 'admin':
+        raise HTTPException(status_code=403, detail = "Only administrator can update fees record")
+    
     db_fee = db.query(database_models.fees).filter(database_models.fees.fee_id == id).first()
     if not db_fee:
         raise HTTPException(status_code=404, detail="Fee record not found")

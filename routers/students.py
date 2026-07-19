@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from database import get_db
 import database_models
 import models
@@ -6,6 +6,19 @@ from auth import get_current_user, get_password_hash
 from sqlalchemy.orm import Session
 
 router = APIRouter()
+
+@router.get("/students/me")
+def get_my_profile(db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+    if current_user.role != "student":
+        raise HTTPException(status_code=403, detail="Only students can access this profile")
+    student = (
+        db.query(database_models.students)
+        .filter(database_models.students.student_id == current_user.user_id)
+        .first()
+    )
+    if not student:
+        raise HTTPException(status_code=404, detail="Student profile not found")
+    return student
 
 @router.get("/students")
 def get_students(db: Session = Depends(get_db), current_user=Depends(get_current_user)):
@@ -79,9 +92,4 @@ def delete_student(id:int, db:Session = Depends(get_db), current_user= Depends(g
         return "Student Deleted"
     else:
         return  "Student not found"
-    
-def get_my_profile(db:Session = Depends(get_db), current_user=Depends(get_current_user)):
-    student = db.query(database_models.students).filter(database_models.students.student_id == current_user.user_id).first()
-    return student
-
 

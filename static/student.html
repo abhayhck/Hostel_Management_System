@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student — Hostel Management</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="app-shell">
+        <header class="topbar">
+            <div>
+                <h1>Student Portal</h1>
+                <div class="meta" id="studentMeta">Loading...</div>
+            </div>
+            <div class="topbar-actions">
+                <button type="button" class="ghost" id="refreshBtn">Refresh</button>
+                <button type="button" class="secondary" id="logoutBtn">Logout</button>
+            </div>
+        </header>
+
+        <nav class="tabs">
+            <button type="button" class="tab-btn active" data-tab="profile">My Profile</button>
+            <button type="button" class="tab-btn" data-tab="complaints">Complaints</button>
+            <button type="button" class="tab-btn" data-tab="fees">Fees</button>
+        </nav>
+
+        <!-- Profile -->
+        <section class="panel active" id="panel-profile">
+            <div class="section-card">
+                <h2>Personal Information</h2>
+                <p class="hint">Your hostel student profile details.</p>
+                <div class="profile-grid" id="profileGrid"></div>
+            </div>
+
+            <div class="section-card">
+                <h2>Room Allocation</h2>
+                <p class="hint">Your current and past room assignments.</p>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Allocation ID</th>
+                                <th>Room ID</th>
+                                <th>Room No</th>
+                                <th>Type</th>
+                                <th>Allocated At</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="myAllocationsBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2>Documents</h2>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Uploaded</th>
+                                <th>Path</th>
+                            </tr>
+                        </thead>
+                        <tbody id="myDocumentsBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Complaints -->
+        <section class="panel" id="panel-complaints">
+            <div class="section-card">
+                <h2>Submit Complaint</h2>
+                <p class="hint">Describe the issue. Status starts as pending.</p>
+                <form id="complaintForm" class="form-grid">
+                    <label class="full">Complaint
+                        <textarea name="complaint_desc" placeholder="Describe your complaint..." required></textarea>
+                    </label>
+                </form>
+                <div class="action-row">
+                    <button type="button" id="submitComplaintBtn">Submit Complaint</button>
+                </div>
+                <div id="complaintMessage" class="message"></div>
+            </div>
+
+            <div class="section-card">
+                <h2>My Complaints</h2>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Description</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                            </tr>
+                        </thead>
+                        <tbody id="myComplaintsBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Fees -->
+        <section class="panel" id="panel-fees">
+            <div class="section-card">
+                <h2>My Fees</h2>
+                <p class="hint">View your fee details and payment status.</p>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Fee ID</th>
+                                <th>Amount</th>
+                                <th>Due Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="myFeesBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="/static/api.js?v=2"></script>
+    <script src="/static/student.js?v=2"></script>
+</body>
+</html>

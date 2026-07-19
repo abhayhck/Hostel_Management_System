@@ -14,10 +14,8 @@ from database import get_db
 import database_models
 import models
 
+from config import secret_key, algorithm, access_token_expire_minutes
 
-secret_key = "4d885d12399d25c58023a759313571b385515356607c97b7d73bd203f9ae2f9f"
-algorithm = "HS256"
-access_token_expire_minutes = 30
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth_2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -25,17 +23,16 @@ oauth_2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 router = APIRouter(tags=["Authentication"])
 
 
-# added by cursor
+
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
 
-# added by cursor
 def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
 
-# added by cursor
+
 def get_user(username: str, db: Session):
     return (
         db.query(database_models.users)
@@ -44,7 +41,7 @@ def get_user(username: str, db: Session):
     )
 
 
-# added by cursor
+
 def authenticate_user(username: str, password: str, db: Session):
     user = get_user(username, db)
     if not user:
@@ -54,7 +51,7 @@ def authenticate_user(username: str, password: str, db: Session):
     return user
 
 
-# added by cursor
+
 def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
     to_encode = data.copy()
     expire = datetime.utcnow() + (
@@ -65,7 +62,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None) -> s
     return encoded_jwt
 
 
-# added by cursor
+
 def get_current_user(
     token: str = Depends(oauth_2_scheme),
     db: Session = Depends(get_db),
@@ -90,7 +87,7 @@ def get_current_user(
     return user
 
 
-# added by cursor
+
 @router.post("/token", response_model=models.token)
 def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
@@ -112,13 +109,13 @@ def login_for_access_token(
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-# added by cursor
+
 @router.get("/users/me")
 def read_users_me(current_user=Depends(get_current_user)):
     return current_user
 
 
-# added by cursor
+
 @router.post("/logout")
 def logout_user():
     return {
