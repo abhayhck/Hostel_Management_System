@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from auth import get_current_user
+from auth import get_current_user, require_admin
 from database import get_db
 import database_models
 import models
@@ -29,18 +29,25 @@ def create_complaint(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user),
 ):
+    if current_user.role == "student":
+        student_id = current_user.user_id
+        status = "pending"
+    else:
+        student_id = new_complaint.student_id
+        status = new_complaint.status
+
     db_student = (
         db.query(database_models.students)
-        .filter(database_models.students.student_id == new_complaint.student_id)
+        .filter(database_models.students.student_id == student_id)
         .first()
     )
     if not db_student:
         raise HTTPException(status_code=404, detail="Student not found")
 
     db_complaint = database_models.complaints(
-        student_id=new_complaint.student_id,
+        student_id=student_id,
         complaint_desc=new_complaint.complaint_desc,
-        status=new_complaint.status,
+        status=status,
     )
     db.add(db_complaint)
     db.commit()
@@ -53,7 +60,7 @@ def update_complaint(
     id: int,
     updated_complaint: models.ComplaintUpdate,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(require_admin),
 ):
     db_complaint = (
         db.query(database_models.complaints)
@@ -74,7 +81,7 @@ def update_complaint(
 def delete_complaint(
     id: int,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(require_admin),
 ):
     db_complaint = (
         db.query(database_models.complaints)

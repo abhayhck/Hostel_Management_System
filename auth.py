@@ -86,6 +86,14 @@ def get_current_user(
         raise credentials_exception
     return user
 
+def require_admin(current_user=Depends(get_current_user)):
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required",
+        )
+    return current_user
+
 
 
 @router.post("/token", response_model=models.token)
@@ -112,7 +120,12 @@ def login_for_access_token(
 
 @router.get("/users/me")
 def read_users_me(current_user=Depends(get_current_user)):
-    return current_user
+    return {
+        "user_id": current_user.user_id,
+        "username": current_user.username,
+        "role": current_user.role,
+        "created_at": current_user.created_at,
+    }
 
 
 

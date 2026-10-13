@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from auth import get_current_user
+from auth import get_current_user, require_admin
 from database import get_db
 import database_models
 from models import RoomAllocationCreate, RoomAllocationRelease
@@ -14,14 +14,19 @@ def get_roomallocation_details(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user),
 ):
-    return db.query(database_models.room_allocation).all()
+    query = db.query(database_models.room_allocation)
+    if current_user.role == "student":
+        query = query.filter(
+            database_models.room_allocation.student_id == current_user.user_id
+        )
+    return query.all()
 
 
 @router.post("/room_allocations")
 def allocate_room(
     allocation: RoomAllocationCreate,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(require_admin),
 ):
     student_id = allocation.student_id
     room_id = allocation.room_id
@@ -74,7 +79,7 @@ def release_student(
     id: int,
     release_data: RoomAllocationRelease,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(require_admin),
 ):
     db_allocation = (
         db.query(database_models.room_allocation)

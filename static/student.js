@@ -37,7 +37,7 @@ function renderProfile(profile) {
             ([label, value]) => `
         <div class="profile-item">
             <span class="label">${label}</span>
-            <span class="value">${value ?? "—"}</span>
+            <span class="value">${escapeHtml(value ?? "—")}</span>
         </div>`
         )
         .join("");
@@ -71,12 +71,12 @@ async function loadMyAllocations() {
             const active = !a.release_date;
             return `
             <tr>
-                <td>${a.allocation_id}</td>
-                <td>${a.room_id}</td>
-                <td>${room.room_no || "—"}</td>
-                <td>${room.room_type || "—"}</td>
-                <td>${formatDate(a.allocation_date)}</td>
-                <td>${active ? statusBadge("active") : a.release_date}</td>
+                <td>${escapeHtml(a.allocation_id)}</td>
+                <td>${escapeHtml(a.room_id)}</td>
+                <td>${escapeHtml(room.room_no || "—")}</td>
+                <td>${escapeHtml(room.room_type || "—")}</td>
+                <td>${escapeHtml(formatDate(a.allocation_date))}</td>
+                <td>${active ? statusBadge("active") : escapeHtml(a.release_date)}</td>
             </tr>`;
         })
         .join("");
@@ -95,10 +95,10 @@ async function loadMyDocuments() {
         .map(
             (d) => `
         <tr>
-            <td>${d.document_id}</td>
-            <td>${d.document_name}</td>
-            <td>${d.upload_at}</td>
-            <td>${d.file_path}</td>
+            <td>${escapeHtml(d.document_id)}</td>
+            <td>${escapeHtml(d.document_name)}</td>
+            <td>${escapeHtml(d.upload_at)}</td>
+            <td>${escapeHtml(d.file_path)}</td>
         </tr>`
         )
         .join("");
@@ -117,10 +117,10 @@ async function loadMyComplaints() {
         .map(
             (c) => `
         <tr>
-            <td>${c.complaint_id}</td>
-            <td>${c.complaint_desc}</td>
+            <td>${escapeHtml(c.complaint_id)}</td>
+            <td>${escapeHtml(c.complaint_desc)}</td>
             <td>${statusBadge(c.status)}</td>
-            <td>${formatDate(c.created_at)}</td>
+            <td>${escapeHtml(formatDate(c.created_at))}</td>
         </tr>`
         )
         .join("");
@@ -139,9 +139,9 @@ async function loadMyFees() {
         .map(
             (f) => `
         <tr>
-            <td>${f.fee_id}</td>
-            <td>${f.amount}</td>
-            <td>${f.due_date}</td>
+            <td>${escapeHtml(f.fee_id)}</td>
+            <td>${escapeHtml(f.amount)}</td>
+            <td>${escapeHtml(f.due_date)}</td>
             <td>${statusBadge(f.status)}</td>
         </tr>`
         )

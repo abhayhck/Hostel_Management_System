@@ -117,7 +117,17 @@ function formatDate(value) {
     }
 }
 
+function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, (character) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;",
+    })[character]);
+}
+
 function statusBadge(status) {
     const safe = (status || "unknown").toLowerCase();
-    return `<span class="badge badge-${safe}">${status || "—"}</span>`;
+    return `<span class="badge badge-${escapeHtml(safe)}">${escapeHtml(status || "—")}</span>`;
 }

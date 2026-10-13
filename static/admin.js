@@ -38,16 +38,16 @@ async function loadStudents() {
     tbody.innerHTML = students
         .map(
             (s) => `
-        <tr data-student='${JSON.stringify(s).replace(/'/g, "&#39;")}'>
-            <td>${s.student_id}</td>
-            <td>${s.name}</td>
-            <td>${s.email}</td>
-            <td>${s.phone}</td>
-            <td>${s.course}</td>
-            <td>${s.year}</td>
-            <td>${s.gender}</td>
-            <td>${s.address}</td>
-            <td>${s.emergency_contact}</td>
+        <tr data-student='${escapeHtml(JSON.stringify(s))}'>
+            <td>${escapeHtml(s.student_id)}</td>
+            <td>${escapeHtml(s.name)}</td>
+            <td>${escapeHtml(s.email)}</td>
+            <td>${escapeHtml(s.phone)}</td>
+            <td>${escapeHtml(s.course)}</td>
+            <td>${escapeHtml(s.year)}</td>
+            <td>${escapeHtml(s.gender)}</td>
+            <td>${escapeHtml(s.address)}</td>
+            <td>${escapeHtml(s.emergency_contact)}</td>
         </tr>`
         )
         .join("");
@@ -75,13 +75,13 @@ async function loadRooms() {
     tbody.innerHTML = rooms
         .map(
             (r) => `
-        <tr data-room='${JSON.stringify(r).replace(/'/g, "&#39;")}'>
-            <td>${r.room_id}</td>
-            <td>${r.room_no}</td>
-            <td>${r.room_type}</td>
-            <td>${r.capacity}</td>
-            <td>${r.occupied}</td>
-            <td>${r.capacity - r.occupied}</td>
+        <tr data-room='${escapeHtml(JSON.stringify(r))}'>
+            <td>${escapeHtml(r.room_id)}</td>
+            <td>${escapeHtml(r.room_no)}</td>
+            <td>${escapeHtml(r.room_type)}</td>
+            <td>${escapeHtml(r.capacity)}</td>
+            <td>${escapeHtml(r.occupied)}</td>
+            <td>${escapeHtml(r.capacity - r.occupied)}</td>
         </tr>`
         )
         .join("");
@@ -107,15 +107,15 @@ async function loadAllocations() {
             const active = !a.release_date;
             return `
             <tr>
-                <td>${a.allocation_id}</td>
-                <td>${a.student_id}</td>
-                <td>${a.room_id}</td>
-                <td>${formatDate(a.allocation_date)}</td>
-                <td>${active ? statusBadge("active") : a.release_date}</td>
+                <td>${escapeHtml(a.allocation_id)}</td>
+                <td>${escapeHtml(a.student_id)}</td>
+                <td>${escapeHtml(a.room_id)}</td>
+                <td>${escapeHtml(formatDate(a.allocation_date))}</td>
+                <td>${active ? statusBadge("active") : escapeHtml(a.release_date)}</td>
                 <td class="row-actions">
                     ${
                         active
-                            ? `<button type="button" class="secondary" data-release="${a.allocation_id}">Release</button>`
+                            ? `<button type="button" class="secondary" data-release="${escapeHtml(a.allocation_id)}">Release</button>`
                             : "—"
                     }
                 </td>
@@ -152,12 +152,12 @@ async function loadComplaints() {
     tbody.innerHTML = complaints
         .map(
             (c) => `
-        <tr data-complaint='${JSON.stringify(c).replace(/'/g, "&#39;")}'>
-            <td>${c.complaint_id}</td>
-            <td>${c.student_id}</td>
-            <td>${c.complaint_desc}</td>
+        <tr data-complaint='${escapeHtml(JSON.stringify(c))}'>
+            <td>${escapeHtml(c.complaint_id)}</td>
+            <td>${escapeHtml(c.student_id)}</td>
+            <td>${escapeHtml(c.complaint_desc)}</td>
             <td>${statusBadge(c.status)}</td>
-            <td>${formatDate(c.created_at)}</td>
+            <td>${escapeHtml(formatDate(c.created_at))}</td>
         </tr>`
         )
         .join("");
@@ -181,11 +181,11 @@ async function loadFees() {
     tbody.innerHTML = fees
         .map(
             (f) => `
-        <tr data-fee='${JSON.stringify(f).replace(/'/g, "&#39;")}'>
-            <td>${f.fee_id}</td>
-            <td>${f.student_id}</td>
-            <td>${f.amount}</td>
-            <td>${f.due_date}</td>
+        <tr data-fee='${escapeHtml(JSON.stringify(f))}'>
+            <td>${escapeHtml(f.fee_id)}</td>
+            <td>${escapeHtml(f.student_id)}</td>
+            <td>${escapeHtml(f.amount)}</td>
+            <td>${escapeHtml(f.due_date)}</td>
             <td>${statusBadge(f.status)}</td>
         </tr>`
         )
@@ -470,6 +470,173 @@ function setupFeeActions() {
     });
 }
 
+function askAiText(tag, text, className = "") {
+    const element = document.createElement(tag);
+    element.textContent = text;
+    if (className) element.className = className;
+    return element;
+}
+
+function askAiLabel(column) {
+    return String(column).replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function askAiValue(value) {
+    if (value === null || value === undefined) return "—";
+    if (typeof value === "object") return JSON.stringify(value);
+    if (typeof value === "boolean") return value ? "Yes" : "No";
+    return String(value);
+}
+
+function appendAskAiSources(container, result) {
+    const sources = document.createElement("div");
+    sources.className = "ask-ai-sources";
+    const entries = [
+        ["SQL query", result.sql || "No SQL query was run."],
+        ["Original result", JSON.stringify(result, null, 2)],
+    ];
+    entries.forEach(([label, value]) => {
+        const disclosure = document.createElement("details");
+        disclosure.append(askAiText("summary", label), askAiText("pre", value));
+        sources.append(disclosure);
+    });
+    container.append(sources);
+}
+
+function renderAskAiAnswer(container, result) {
+    container.replaceChildren(askAiText("p", "Ask AI", "ask-ai-speaker"));
+    if (result.message) {
+        container.append(askAiText("p", result.message));
+        appendAskAiSources(container, result);
+        return;
+    }
+    const columns = result.columns || [];
+    const rows = result.rows || [];
+    if (!rows.length) {
+        container.append(askAiText("p", "No matching records found."));
+        appendAskAiSources(container, result);
+        return;
+    }
+    if (rows.length === 1 && columns.length === 1) {
+        container.append(askAiText("p", askAiLabel(columns[0]), "hint"));
+        container.append(askAiText("p", askAiValue(rows[0][0]), "ask-ai-value"));
+    } else if (rows.length === 1) {
+        const details = document.createElement("dl");
+        details.className = "ask-ai-details";
+        columns.forEach((column, index) => {
+            details.append(askAiText("dt", askAiLabel(column)), askAiText("dd", askAiValue(rows[0][index])));
+        });
+        container.append(details);
+    } else {
+        container.append(askAiText("p", `Found ${rows.length} matching records${result.truncated ? " in this preview" : ""}.`));
+        const wrapper = document.createElement("div");
+        wrapper.className = "table-wrap";
+        wrapper.tabIndex = 0;
+        wrapper.setAttribute("aria-label", "Query results; scroll horizontally for more columns");
+        const table = document.createElement("table");
+        table.className = "data-table";
+        const head = document.createElement("thead");
+        const header = document.createElement("tr");
+        columns.forEach((column) => {
+            const cell = askAiText("th", askAiLabel(column));
+            cell.scope = "col";
+            header.append(cell);
+        });
+        head.append(header);
+        const body = document.createElement("tbody");
+        rows.forEach((row) => {
+            const line = document.createElement("tr");
+            columns.forEach((_, index) => line.append(askAiText("td", askAiValue(row[index]))));
+            body.append(line);
+        });
+        table.append(head, body);
+        wrapper.append(table);
+        container.append(wrapper);
+    }
+    if (result.truncated) {
+        container.append(askAiText("p", `Showing the first ${rows.length} results. Ask a more specific question to narrow them down.`, "hint"));
+    }
+    appendAskAiSources(container, result);
+}
+
+function setupAskAi() {
+    const form = document.getElementById("askAiForm");
+    const questionBox = document.getElementById("askAiQuestion");
+    const submit = document.getElementById("askAiSubmit");
+    const history = document.getElementById("askAiHistory");
+    const count = document.getElementById("askAiCount");
+    let pending = false;
+    const updateCount = () => {
+        count.textContent = `${questionBox.value.length} / 500 characters`;
+        questionBox.style.height = "auto";
+        questionBox.style.height = `${Math.min(questionBox.scrollHeight, 140)}px`;
+    };
+    questionBox.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" && !event.shiftKey && !event.isComposing) {
+            event.preventDefault();
+            if (!pending) form.requestSubmit();
+        }
+    });
+    questionBox.addEventListener("input", () => {
+        questionBox.setCustomValidity("");
+        updateCount();
+    });
+    document.querySelectorAll("[data-ask-example]").forEach((button) => {
+        button.addEventListener("click", () => {
+            questionBox.value = button.dataset.askExample;
+            questionBox.setCustomValidity("");
+            updateCount();
+            questionBox.focus();
+        });
+    });
+    form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        if (pending) return;
+        const question = questionBox.value.trim();
+        if (!question || question.length > 500) {
+            questionBox.setCustomValidity("Enter a question between 1 and 500 characters.");
+            questionBox.reportValidity();
+            return;
+        }
+        pending = true;
+        submit.disabled = true;
+        submit.setAttribute("aria-label", "Finding your answer");
+        submit.setAttribute("aria-busy", "true");
+        document.getElementById("askAiEmpty").hidden = true;
+        const exchange = document.createElement("article");
+        exchange.className = "ask-ai-exchange";
+        const prompt = document.createElement("div");
+        prompt.className = "ask-ai-question";
+        prompt.append(askAiText("p", "You", "ask-ai-speaker"), askAiText("p", question));
+        const answer = document.createElement("div");
+        answer.className = "ask-ai-answer";
+        answer.append(askAiText("p", "Finding your answer…"));
+        exchange.append(prompt, answer);
+        history.prepend(exchange);
+        try {
+            const result = await apiRequest("/ask", {
+                method: "POST",
+                body: JSON.stringify({ question }),
+            });
+            renderAskAiAnswer(answer, result);
+            if (questionBox.value.trim() === question) {
+                questionBox.value = "";
+                updateCount();
+            }
+        } catch (error) {
+            answer.replaceChildren(askAiText("p", "Unable to answer", "ask-ai-speaker"), askAiText("p", error.message));
+            answer.classList.add("ask-ai-error");
+        } finally {
+            pending = false;
+            submit.disabled = false;
+            submit.setAttribute("aria-label", "Send question");
+            submit.setAttribute("aria-busy", "false");
+        }
+    });
+    submit.disabled = false;
+    updateCount();
+}
+
 async function init() {
     currentAdmin = await requireRole(["admin"]);
     if (!currentAdmin) return;
@@ -484,6 +651,7 @@ async function init() {
     setupAllocationActions();
     setupComplaintActions();
     setupFeeActions();
+    setupAskAi();
 
     try {
         await refreshAll();

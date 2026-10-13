@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin — Hostel Management</title>
-    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/styles.css?v=ask-ai-3">
 </head>
 <body>
     <div class="app-shell">
@@ -25,6 +25,7 @@
             <button type="button" class="tab-btn" data-tab="allocations">Allocations</button>
             <button type="button" class="tab-btn" data-tab="complaints">Complaints</button>
             <button type="button" class="tab-btn" data-tab="fees">Fees</button>
+            <button type="button" class="tab-btn" data-tab="ask-ai">Ask AI</button>
         </nav>
 
         <!-- Students -->
@@ -292,9 +293,32 @@
                 </div>
             </div>
         </section>
+        <section class="panel" id="panel-ask-ai" aria-labelledby="askAiHeading">
+            <div class="section-card ask-ai">
+                <h2 id="askAiHeading">Ask AI</h2>
+                <p class="hint">Ask a question about your hostel data. Include the details in each question.</p>
+                <form id="askAiForm">
+                    <label for="askAiQuestion">Your question</label>
+                    <div class="ask-ai-composer">
+                        <textarea id="askAiQuestion" name="question" rows="1" maxlength="500" required placeholder="Ask about your hostel…" aria-describedby="askAiCount"></textarea>
+                        <button type="submit" id="askAiSubmit" class="ask-ai-send" aria-label="Send question" title="Send question" disabled><span aria-hidden="true">↑</span></button>
+                    </div>
+                    <div class="ask-ai-controls">
+                        <span class="hint" id="askAiCount">0 / 500 characters</span>
+                    </div>
+                </form>
+                <div class="ask-ai-examples" aria-label="Example questions">
+                    <button type="button" class="ghost" data-ask-example="How many students are currently staying?">Students currently staying</button>
+                    <button type="button" class="ghost" data-ask-example="Which rooms have vacancies?">Rooms with vacancies</button>
+                    <button type="button" class="ghost" data-ask-example="List pending complaints with student names.">Pending complaints</button>
+                </div>
+                <p class="hint" id="askAiEmpty">Your answers will appear here.</p>
+                <div id="askAiHistory" class="ask-ai-history" role="log" aria-label="Questions and answers" aria-live="polite" aria-relevant="additions text"></div>
+            </div>
+        </section>
     </div>
 
-    <script src="/static/api.js"></script>
-    <script src="/static/admin.js"></script>
+    <script src="/static/api.js?v=xss-1"></script>
+    <script src="/static/admin.js?v=xss-1"></script>
 </body>
 </html>

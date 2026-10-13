@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from auth import get_current_user
+from auth import get_current_user, require_admin
 from database import get_db
 import database_models
 import models
@@ -21,7 +21,7 @@ def get_allrooms(
 def create_rooms(
     new_room: models.RoomCreate,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(require_admin),
 ):
     existing_room = (
         db.query(database_models.rooms)
@@ -57,7 +57,7 @@ def update_rooms(
     id: int,
     updated_room: models.RoomUpdate,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(require_admin),
 ):
     db_room = (
         db.query(database_models.rooms)
@@ -100,7 +100,7 @@ def update_rooms(
 def delete_rooms(
     id: int,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(require_admin),
 ):
     db_room = (
         db.query(database_models.rooms)

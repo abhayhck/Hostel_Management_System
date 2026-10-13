@@ -82,3 +82,13 @@ class notices(Base):
     description = Column(String)
     created_at = Column(String)
     posted_by = Column(Integer, ForeignKey('admins.admin_id'))
+
+class ask_log(Base):
+    __tablename__ = "ask_log"
+    log_id = Column(Integer, primary_key=True, index=True)
+    admin_id = Column(Integer, ForeignKey("users.user_id"))
+    question = Column(String)
+    generated_sql = Column(String)
+    outcome = Column(String)      # ok / cannot_answer / rejected / failed / llm_error
+    row_count = Column(Integer)
+    created_at = Column(DateTime, default=datetime.utcnow)

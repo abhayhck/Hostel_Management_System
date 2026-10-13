@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from database import get_db
 import database_models
 import models
-from auth import get_current_user, get_password_hash
+from auth import get_current_user, get_password_hash, require_admin
 from sqlalchemy.orm import Session
 
 router = APIRouter()
@@ -21,7 +21,7 @@ def get_my_profile(db: Session = Depends(get_db), current_user=Depends(get_curre
     return student
 
 @router.get("/students")
-def get_students(db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+def get_students(db: Session = Depends(get_db), current_user=Depends(require_admin)):
     db_students = db.query(database_models.students).all()
     return db_students
 '''
@@ -35,7 +35,7 @@ def get_studentbyid(id:int, db:Session = Depends(get_db)):
 '''
     
 @router.post("/students")
-def create_student(new_student:models.students, db:Session = Depends(get_db), current_user=Depends(get_current_user)):
+def create_student(new_student:models.students, db:Session = Depends(get_db), current_user=Depends(require_admin)):
     #creating user in users table
     user = database_models.users( 
         username = new_student.phone,
@@ -66,7 +66,7 @@ def create_student(new_student:models.students, db:Session = Depends(get_db), cu
     }
 
 @router.put("/students/{id}")
-def update_student(id:int, updated_student:models.students, db:Session = Depends(get_db), current_user = Depends(get_current_user) ):
+def update_student(id:int, updated_student:models.students, db:Session = Depends(get_db), current_user = Depends(require_admin) ):
 
     db_student = db.query(database_models.students).filter(database_models.students.student_id == id).first()
     if db_student:
@@ -84,12 +84,15 @@ def update_student(id:int, updated_student:models.students, db:Session = Depends
         return "student not found"
 
 @router.delete("/students/{id}")
-def delete_student(id:int, db:Session = Depends(get_db), current_user= Depends(get_current_user)):
+def delete_student(id: int, db: Session = Depends(get_db), current_user=Depends(require_admin)):
     db_student = db.query(database_models.students).filter(database_models.students.student_id == id).first()
-    if db_student:
-        db.delete(db_student)
-        db.commit()
-        return "Student Deleted"
-    else:
-        return  "Student not found"
+    if not db_student:
+        raise HTTPException(status_code=404, detail="Student not found")
+    db_user = db.query(database_models.users).filter(database_models.users.user_id == id).first()
+    db.delete(db_student)
+    db.flush()          # delete the student row first, since it references users
+    if db_user:
+        db.delete(db_user)
+    db.commit()
+    return "Student Deleted"
 
